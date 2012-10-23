@@ -1,7 +1,12 @@
 module Main
 where
- 
-import Text.XML.HXT.Core
+  
+import System.IO  
+import System.Exit  
+import System.Console.GetOpt  
+import Text.XML.HXT.Core ((>>>), (&&&), readDocument, getChildren, getText, isElem, 
+                          XmlTree, XNode(..), deep, getName, localPart, hasName, 
+                          ArrowXml, runLA, getAttrl, runX, withValidate, no, yes)
 import Text.XML.HXT.Expat
 import Text.XML.HXT.Curl -- use libcurl for HTTP access
                          -- only necessary when reading http://...
@@ -11,20 +16,95 @@ import Data.Hashable (Hashable, hash)
 import Data.Tree.NTree.TypeDefs 
 import System.Environment
 import qualified Data.Vector as Vector
-import Data.Maybe (isJust, fromJust)
+import Data.Maybe (isJust, fromJust, fromMaybe)
 import qualified Data.Text as T
 import qualified Data.ByteString.Lazy.Char8 as BS
+import Control.Monad (when)
   
+
+data Flag = Input String | StartFrom String | Multiline | SkipRoots | IgnoreNulls | WrapArray | ShowHelp
+    deriving (Show, Eq)
+
+inp :: Maybe String -> Flag
+inp  = Input  . fromMaybe "stdin"
+
+options :: [OptDescr Flag]
+options =
+     [ Option ['h']     ["help"] (NoArg ShowHelp) "Show this help" 
+     , Option ['i']     [] (OptArg inp "FILE")       "input FILE"
+     , Option ['t']     ["tag-name"]  (ReqArg StartFrom "TAG") "Start conversion with nodes named TAG (ignoring all parent nodes)"
+     , Option ['s']     ["skip-roots"] (NoArg SkipRoots) "Ignore the selected nodes, and start converting from their children (can be combined with the 'start-tag' option to process only children of the matching nodes)"
+     , Option ['m']     ["multiline"]  (NoArg Multiline) "Output each of the top-level converted json objects on a seperate line"
+     , Option ['n']     ["ignore-nulls"] (NoArg IgnoreNulls) "Ignore nulls (do not output them) in the top-level output objects"
+     , Option ['a']     ["as-array"] (NoArg WrapArray) "Output the resulting objects in a top-level JSON array"
+     ]
+
+parseOptions :: [String] -> IO ([Flag], [String])
+parseOptions argv = 
+  case getOpt Permute options argv of
+    (o,n,[]  ) -> return (o,n)
+    (_,_,errs) -> ioError (userError (concat errs ++ usageInfo usageHeader options))
+                  
+usageHeader :: String
+usageHeader = "Usage: <program> [OPTION...] files..."
+            
+getStartNodes :: ArrowXml cat => [Flag] -> cat (NTree XNode) XmlTree
+getStartNodes flags = case (filter f' flags) of
+  []            -> getChildren >>> isElem
+  [StartFrom x] -> deep (isElem >>> hasName x) 
+  _   -> error "Expecting at most one 'start-tag' option"
+  where f' (StartFrom _) = True
+        f' _             = False
+        
+getSrcFile :: [Flag] -> String
+getSrcFile flags = case (filter f' flags) of
+  [Input x] -> x
+  _   -> error "Expecting an input file"
+  where f' (Input _) = True
+        f' _         = False
+ 
 main :: IO ()
 main = do
-       [src] <- getArgs
-       [rootElem] <- runX ( readDocument [withValidate no
-                                         ,withExpat True
-                                         ,withCurl []
-                                         ] src
-                            >>> getChildren 
-                            >>> isElem )
-       BS.putStr . Aeson.encode . wrapRoot $ xmlTreeToJSON rootElem
+       args <- getArgs
+       (flags, _) <- parseOptions args
+       
+       case (elem ShowHelp flags) of 
+         True  -> die $ usageInfo usageHeader options
+         False -> return ()
+       
+       let startNodesFilter = getStartNodes flags
+           src = getSrcFile flags
+           wrapArray = elem WrapArray flags
+           skipRoots = elem SkipRoots flags
+           multiline = case (elem Multiline flags, wrapArray) of
+             (False, False) -> BS.concat
+             (False, True)  -> BS.intercalate (BS.pack ",") 
+             (True,  False) -> BS.intercalate (BS.pack "\n") 
+             (True,  True)  -> BS.intercalate (BS.pack ",\n") 
+             
+           ignoreNulls = case (elem IgnoreNulls flags) of
+             False  -> const True
+             True   -> (/= Aeson.Null)
+             
+           nodesFilter = case skipRoots of
+             False -> startNodesFilter
+             True  -> startNodesFilter >>> getChildren
+             
+       rootElems <- runX ( readDocument [withValidate no
+                                        ,withExpat True
+                                        ,withCurl []
+                                        ] src
+                           >>> nodesFilter )
+
+       -- TODO: de-uglify and optimize the following
+       when wrapArray $ putStr "["
+       BS.putStr $ multiline
+                 . map Aeson.encode 
+                 . filter ignoreNulls 
+                 . map (wrapRoot . xmlTreeToJSON)
+                 $ rootElems
+       when wrapArray $ putStr "]"
+       
        return ()
       
 data JSValueName = Text | Tag String | Attr String
@@ -100,4 +180,10 @@ xmlTreeToJSON _ = Nothing
                 
 
 
-  
+die :: String -> IO a
+die msg = do putErrLn (msg)
+             exitWith (ExitFailure 1)
+             
+
+putErrLn :: String -> IO ()
+putErrLn = hPutStrLn stderr
