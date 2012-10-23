@@ -61,7 +61,7 @@ main = do
        args <- getArgs
        (flags, inputFiles) <- parseOptions args
        
-       case (elem ShowHelp flags) of 
+       case (elem ShowHelp flags || (null flags && null inputFiles)) of 
          True  -> die $ usageInfo usageHeader options
          False -> return ()
        
