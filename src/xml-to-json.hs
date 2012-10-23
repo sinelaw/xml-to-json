@@ -2,7 +2,7 @@ module Main
 where
  
 import Text.XML.HXT.Core
-import Text.XML.HXT.Expat -- TagSoup
+import Text.XML.HXT.Expat
 import Text.XML.HXT.Curl -- use libcurl for HTTP access
                          -- only necessary when reading http://...
 import qualified Data.Aeson as Aeson
@@ -14,25 +14,16 @@ import qualified Data.Vector as Vector
 import Data.Maybe (isJust, fromJust)
 import qualified Data.Text as T
 import qualified Data.ByteString.Lazy.Char8 as BS
-
---instance XmlPickler Aeson.Value where
---  xpickle = xpJSON
-    
---xpJSON :: PU Aeson.Value
---xpJSON = xpElem "
   
 main :: IO ()
 main = do
        [src] <- getArgs
        [rootElem] <- runX ( readDocument [withValidate no
-                                          --,withTagsSoup
                                          ,withExpat True
                                          ,withCurl []
                                          ] src
                             >>> getChildren 
-                            >>> isElem
-                          )
-       --print rootElem
+                            >>> isElem )
        BS.putStr . Aeson.encode . wrapRoot $ xmlTreeToJSON rootElem
        return ()
       
