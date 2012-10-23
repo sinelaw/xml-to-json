@@ -11,7 +11,7 @@ category:            Web
 build-type:          Simple
 cabal-version:       >=1.8
 
-executable xml2json
+executable xml-to-json
   main-is: src/xml-to-json.hs             
   -- other-modules:       
   build-depends:       base ==4.5.*, hxt, hxt-curl, aeson, text, unordered-containers, hashable, vector, bytestring, hxt-tagsoup, hxt-expat
