@@ -19,21 +19,21 @@ import qualified Data.Vector as Vector
 import Data.Maybe (isJust, fromJust, fromMaybe)
 import qualified Data.Text as T
 import qualified Data.ByteString.Lazy.Char8 as BS
-import Control.Monad (when)
+import Control.Monad (when, forM_)
   
 
 data Flag = Input String | StartFrom String | Multiline | SkipRoots | IgnoreNulls | WrapArray | ShowHelp
     deriving (Show, Eq)
 
 inp :: Maybe String -> Flag
-inp  = Input  . fromMaybe "stdin"
+inp  = Input  . fromMaybe ""
 
 options :: [OptDescr Flag]
 options =
      [ Option ['h']     ["help"] (NoArg ShowHelp) "Show this help" 
-     , Option ['i']     [] (OptArg inp "FILE")       "input FILE"
      , Option ['t']     ["tag-name"]  (ReqArg StartFrom "TAG") "Start conversion with nodes named TAG (ignoring all parent nodes)"
-     , Option ['s']     ["skip-roots"] (NoArg SkipRoots) "Ignore the selected nodes, and start converting from their children (can be combined with the 'start-tag' option to process only children of the matching nodes)"
+     , Option ['s']     ["skip-roots"] (NoArg SkipRoots) ("Ignore the selected nodes, and start converting from their children\n" 
+                                                          ++ "(can be combined with the 'start-tag' option to process only children of the matching nodes)")
      , Option ['m']     ["multiline"]  (NoArg Multiline) "Output each of the top-level converted json objects on a seperate line"
      , Option ['n']     ["ignore-nulls"] (NoArg IgnoreNulls) "Ignore nulls (do not output them) in the top-level output objects"
      , Option ['a']     ["as-array"] (NoArg WrapArray) "Output the resulting objects in a top-level JSON array"
@@ -56,24 +56,16 @@ getStartNodes flags = case (filter f' flags) of
   where f' (StartFrom _) = True
         f' _             = False
         
-getSrcFile :: [Flag] -> String
-getSrcFile flags = case (filter f' flags) of
-  [Input x] -> x
-  _   -> error "Expecting an input file"
-  where f' (Input _) = True
-        f' _         = False
- 
 main :: IO ()
 main = do
        args <- getArgs
-       (flags, _) <- parseOptions args
+       (flags, inputFiles) <- parseOptions args
        
        case (elem ShowHelp flags) of 
          True  -> die $ usageInfo usageHeader options
          False -> return ()
        
        let startNodesFilter = getStartNodes flags
-           src = getSrcFile flags
            wrapArray = elem WrapArray flags
            skipRoots = elem SkipRoots flags
            multiline = case (elem Multiline flags, wrapArray) of
@@ -89,24 +81,26 @@ main = do
            nodesFilter = case skipRoots of
              False -> startNodesFilter
              True  -> startNodesFilter >>> getChildren
-             
-       rootElems <- runX ( readDocument [withValidate no
-                                        ,withExpat True
-                                        ,withCurl []
-                                        ] src
-                           >>> nodesFilter )
-
-       -- TODO: de-uglify and optimize the following
-       when wrapArray $ putStr "["
-       BS.putStr $ multiline
-                 . map Aeson.encode 
-                 . filter ignoreNulls 
-                 . map (wrapRoot . xmlTreeToJSON)
-                 $ rootElems
-       when wrapArray $ putStr "]"
        
+       forM_ inputFiles $ \src -> do 
+         rootElems <- runX ( readDocument [withValidate no
+                                          ,withExpat True
+                                          ,withCurl []
+                                          ] src
+                             >>> nodesFilter )
+         -- TODO: de-uglify and optimize the following
+         when wrapArray $ putStr "["
+         BS.putStr $ multiline
+                   . map Aeson.encode 
+                   . filter ignoreNulls 
+                   . map (wrapRoot . xmlTreeToJSON)
+                   $ rootElems
+         when wrapArray $ putStr "]"
+         return ()
+         
        return ()
-      
+
+
 data JSValueName = Text | Tag String | Attr String
      deriving (Eq, Ord, Show)
 

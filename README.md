@@ -57,7 +57,12 @@ A few simple tests have shown this to be at least twice as fast as [jsonml's xls
 Usage
 -----
 
+Basic usage
+~~~~~~~~~~~
 Just run the tool with the filename as a single argument, and direct the stdout to a file or a pipe:
 
 > xml-to-json myfile.xml > myfile.js
 
+Advanced
+~~~~~~~~
+Use the `--help` option to see the full command line options.
