@@ -1,0 +1,18 @@
+name:                xml-to-json
+version:             0.1.0.0
+synopsis:            Simple command line tool for converting XML files to json
+description:         This simple tool converts XMLs to json format, gaining readability while losing information such as comments, attribute ordering, and such. The main purpose is to convert legacy XML-based data into a format that can be imported into JSON databases such as CouchDB and MongoDB.
+license:             GPL-3
+license-file:        LICENSE
+author:              Noam Lewis
+maintainer:          jones.noamle@gmail.com
+-- copyright:           
+category:            Web
+build-type:          Simple
+cabal-version:       >=1.8
+
+executable xml2json
+  main-is: src/xml-to-json.hs             
+  -- other-modules:       
+  build-depends:       base ==4.5.*, hxt, hxt-curl, aeson, text, unordered-containers, hashable, vector, bytestring, hxt-tagsoup, hxt-expat
+  ghc-options: -Wall -O2 
