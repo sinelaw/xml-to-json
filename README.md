@@ -6,6 +6,8 @@ The output is designed to be easy to store and process using JSON-based database
 
 Currently the tool processes XMLs according to lossy rules designed to produce sensibly minimal output. If you need to convert without losing information at all consider something like the XSLT offered by the [jsonml project](http://www.jsonml.org/). This tool produces json output similar (but not identical) to the [xml2json-xslt project](http://code.google.com/p/xml2json-xslt/).
 
+* auto-gen TOC:
+{:toc}
 
 ## Usage
 
@@ -22,7 +24,7 @@ Use the `--help` option to see the full command line options.
 
 Here's a (possibly outdated) snapshot of the `--help` output:
 
-`
+```
 Usage: xml-to-json [OPTION...] files...
   -h      --help          Show this help
   -t TAG  --tag-name=TAG  Start conversion with nodes named TAG (ignoring all parent nodes)
@@ -31,7 +33,7 @@ Usage: xml-to-json [OPTION...] files...
   -m      --multiline     Output each of the top-level converted json objects on a seperate line
   -n      --ignore-nulls  Ignore nulls (do not output them) in the top-level output objects
   -a      --as-array      Output the resulting objects in a top-level JSON array
-`
+```
 
 ## Example output
 
