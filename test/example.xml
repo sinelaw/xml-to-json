@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<!DOCTYPE Test>
+<Tests>
+  <Test Name="The First Test">
+    <Description Format="FooFormat">
+Just a dummy
+<!-- comment -->
+Xml file.
+    </Description>
+  </Test>
+  <Test Name="Second"/>
+</Tests>
+
