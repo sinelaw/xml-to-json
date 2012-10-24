@@ -1,15 +1,28 @@
 name:                xml-to-json
 version:             0.1.0.0
 synopsis:            Simple command line tool for converting XML files to json
-description:         This simple tool converts XMLs to json format, gaining readability while losing information such as comments, attribute ordering, and such. The main purpose is to convert legacy XML-based data into a format that can be imported into JSON databases such as CouchDB and MongoDB.
+description:         
+		     This simple tool converts XMLs to json format, gaining readability while losing information such as comments, attribute ordering, and such. 
+		     The main purpose is to convert legacy XML-based data into a format that can be imported into JSON databases such as CouchDB and MongoDB.
+		     .
+		     See <https://github.com/sinelaw/xml-to-json#readme> for details and usage.
 license:             GPL-3
 license-file:        LICENSE
 author:              Noam Lewis
 maintainer:          jones.noamle@gmail.com
--- copyright:           
-category:            Web
+homepage:            https://github.com/sinelaw/xml-to-json
+bug-reports:         https://github.com/sinelaw/xml-to-json/issues
+copyright:           Copyright Noam Lewis, 2012
+category:            Web, XML
 build-type:          Simple
 cabal-version:       >=1.8
+Extra-Source-Files:
+  README.md
+
+
+source-repository head
+  type:     git
+  location: https://github.com/sinelaw/xml-to-json.git
 
 executable xml-to-json
   main-is: src/xml-to-json.hs             
