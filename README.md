@@ -87,7 +87,9 @@ JSON output (formatted for readability - actual output a single line):
 
 ## Performance
 
-The speed on a core-i5 machine is about 1.8MB of xml / sec, with a 100MB XML file resulting in a 56MB json output.
+For large XML files, the speed on a core-i5 machine is about 2MB of xml / sec, with a 100MB XML file resulting in a 56MB json output. It took about 10 minutes to process 1GB of xml data. The main performance limit is memory - only one single-threaded process was running since every single large file (tens of megabytes) consumes a lot of memory - about 50 times the size of the file.
 
 A few simple tests have shown this to be at least twice as fast as [jsonml's xlst-based converter](http://www.jsonml.org/xml/) (however, the outputs are not similar, as stated above).
- 
+
+Currently the program processes files serially. If run in parallel on many small XML files (<5MB) the performance becomes cpu-bound and processing may be *much* faster, depending on the architecture.
+
