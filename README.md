@@ -25,7 +25,7 @@ As of this writing, xml-to-json uses [hxt](http://hackage.haskell.org/package/hx
 
 ## Installation
 
-**Windows Disclaimer**: I couldn't easily get the haskell dependencies to compile on Windows, so good luck! You'll have to figure it out (and then, tell me how you did it)
+**Note for Windows users**: [Download pre-built exe here](https://github.com/downloads/sinelaw/xml-to-json/xml-to-json.zip). I managed to compile using [cygwin](http://www.cygwin.org). Use the [xml-to-json branch for cygwin](https://github.com/sinelaw/xml-to-json/tree/cygwin) if you're trying to build for windows. The main difference is lack of curl support.
 
 To install the **release version**: Since xml-to-json is implemented in Haskell, "all you need to do" is install the latest [Haskell platform](http://www.haskell.org/platform/) for your system, and then run:
 
