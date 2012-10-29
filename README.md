@@ -14,9 +14,28 @@ As of this writing, xml-to-json uses [hxt](http://hackage.haskell.org/package/hx
 
 ## Contents
 
+* [Installation](#installation)
 * [Usage](#usage)
 * [Example output](#example-output)
 * [Performance](#performance)
+
+## Installation
+
+**Windows Disclaimer**: I couldn't easily get the haskell dependencies to compile on Windows, so good luck! You'll have to figure it out (and then, tell me how you did it)
+
+*Release version*: Since xml-to-json is implemented in Haskell, "all you need to do" is install the latest [Haskell platform](http://www.haskell.org/platform/) for your system, and then run:
+
+```
+cabal update
+cabal install xml-to-json
+```
+
+*From source*: Clone this repository locally, and then (assuming you have [Haskell platform](http://www.haskell.org/platform/) installed) run `cabal install`:
+
+```
+cd xml-to-json
+cabal install
+```
 
 ## Usage
 
