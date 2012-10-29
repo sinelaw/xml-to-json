@@ -2,6 +2,17 @@
 
 Fast & easy command line tool for converting XML files to JSON.
 
+
+## Contents
+* [Overview](#overview)
+* [Installation](#installation)
+* [Usage](#usage)
+* [Example output](#example-output)
+* [Performance](#performance)
+
+
+## Overview
+
 The output is designed to be easy to store and process using JSON-based databases, such as [mongoDB](http://www.mongodb.org/) and [CouchDB](http://couchdb.apache.org/). In fact, the original motivation for xml-to-json was to store and query a large (~10GB) XML-based dataset, using an off-the-shelf scalable JSON database.
 
 Currently the tool processes XMLs according to lossy rules designed to produce sensibly minimal output. If you need to convert without losing information at all consider something like the XSLT offered by the [jsonml project](http://www.jsonml.org/). Unlike jsonml, this tool - xml-to-json - produces json output similar (but not identical) to the [xml2json-xslt project](http://code.google.com/p/xml2json-xslt/).
@@ -12,18 +23,11 @@ xml-to-json is implemented in [Haskell](http://www.haskell.org). Currently the i
 
 As of this writing, xml-to-json uses [hxt](http://hackage.haskell.org/package/hxt) with the [expat](http://expat.sourceforge.net/)-based [hxt-expat](http://hackage.haskell.org/package/hxt-expat) parser. The pure Haskell parsers for hxt [all seem to have memory issues](http://stackoverflow.com/q/2292729/562906) which hxt-expat doesn't.
 
-## Contents
-
-* [Installation](#installation)
-* [Usage](#usage)
-* [Example output](#example-output)
-* [Performance](#performance)
-
 ## Installation
 
 **Windows Disclaimer**: I couldn't easily get the haskell dependencies to compile on Windows, so good luck! You'll have to figure it out (and then, tell me how you did it)
 
-To install the *release version*: Since xml-to-json is implemented in Haskell, "all you need to do" is install the latest [Haskell platform](http://www.haskell.org/platform/) for your system, and then run:
+To install the **release version**: Since xml-to-json is implemented in Haskell, "all you need to do" is install the latest [Haskell platform](http://www.haskell.org/platform/) for your system, and then run:
 
 ```
 cabal update
