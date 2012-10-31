@@ -1,5 +1,5 @@
 name:                xml-to-json
-version:             0.1.0.0
+version:             0.1.1.0
 synopsis:            Simple command line tool for converting XML files to json
 description:         
 		     This simple tool converts XMLs to json format, gaining readability while losing information such as comments, attribute ordering, and such. 
