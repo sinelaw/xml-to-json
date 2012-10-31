@@ -91,5 +91,6 @@ For large XML files, the speed on a core-i5 machine is about 2MB of xml / sec, w
 
 A few simple tests have shown this to be at least twice as fast as [jsonml's xlst-based converter](http://www.jsonml.org/xml/) (however, the outputs are not similar, as stated above).
 
-Currently the program processes files serially. If run in parallel on many small XML files (<5MB) the performance becomes cpu-bound and processing may be *much* faster, depending on the architecture.
+Currently the program processes files serially. If run in parallel on many small XML files (<5MB) the performance becomes cpu-bound and processing may be *much* faster, depending on the architecture. A simple test showed performance of about 5MB / sec (on the same core-i5).
+
 
