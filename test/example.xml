@@ -2,6 +2,7 @@
 <!DOCTYPE Test>
 <Tests>
   <Test Name="The First Test">
+    <SomeText>Some simple text</SomeText>
     <Description Format="FooFormat">
 Just a dummy
 <!-- comment -->

@@ -21,18 +21,22 @@ import qualified Data.Map as M
 import qualified Data.Text as T
 import qualified Data.Vector as Vector
 
-data Flag = Input String | StartFrom String | Multiline | SkipRoots | IgnoreNulls | WrapArray | ShowHelp
+data Flag = Input String | StartFrom String | Multiline | SkipRoots | NoIgnoreNulls | WrapArray | NoCollapseText | ShowHelp
     deriving (Show, Eq)
 
 options :: [OptDescr Flag]
 options =
-  [ Option "h" ["help"]         (NoArg ShowHelp)         "Show this help"
-  , Option "t" ["tag-name"]     (ReqArg StartFrom "TAG") "Start conversion with nodes named TAG (ignoring all parent nodes)"
-  , Option "s" ["skip-roots"]   (NoArg SkipRoots)       ("Ignore the selected nodes, and start converting from their children\n"
-                                                         ++ "(can be combined with the 'start-tag' option to process only children of the matching nodes)")
-  , Option "m" ["multiline"]    (NoArg Multiline)        "Output each of the top-level converted json objects on a seperate line"
-  , Option "n" ["ignore-nulls"] (NoArg IgnoreNulls)      "Ignore nulls (do not output them) in the top-level output objects"
-  , Option "a" ["as-array"]     (NoArg WrapArray)        "Output the resulting objects in a top-level JSON array"
+  [ Option "h" ["help"]             (NoArg ShowHelp)         "Show this help"
+  , Option "t" ["tag-name"]         (ReqArg StartFrom "TAG") "Start conversion with nodes named TAG (ignoring all parent nodes)"
+  , Option "s" ["skip-roots"]       (NoArg SkipRoots)       ("Ignore the selected nodes, and start converting from their children\n"
+                                                             ++ "(can be combined with the 'start-tag' option to process only children of the matching nodes)")
+  , Option "a" ["as-array"]         (NoArg WrapArray)        "Output the resulting objects in a top-level JSON array"
+  , Option "m" ["multiline"]        (NoArg Multiline)       ("When using 'as-array' output, print each of top-level json object on a seperate line.\n" 
+                                                             ++ "(If not using 'as-array', this option will be on regardless, and output is always line-seperated.)")
+  , Option ""  ["no-collapse-text"] (NoArg NoCollapseText)  ("Don't collapse elements that only contain text into a simple string property.\n"
+                                                             ++ "Instead, always emit '.value' properties for text nodes, even if an element contains only text.\n"
+                                                             ++ "(Output 'schema' will be more stable.)")
+  , Option ""  ["no-ignore-nulls"]  (NoArg NoIgnoreNulls)    "Don't ignore nulls (and do output them) in the top level of output objects"
   ]
 
 parseOptions :: [String] -> IO ([Flag], [String])
@@ -60,19 +64,19 @@ main = do
     die $ usageInfo usageHeader options
 
   let
-    wrapArray = WrapArray `elem` flags
+    skipRoots     = SkipRoots      `elem` flags
+    wrapArray     = WrapArray      `elem` flags
+    collapseText  = NoCollapseText `notElem` flags
     wrapAction act
       | wrapArray = putStr "[" *> act <* putStr "]"
       | otherwise = act
-    skipRoots = SkipRoots `elem` flags
-    multiline = case (Multiline `elem` flags, wrapArray) of
-      (False, False) -> BS.concat
-      (False, True)  -> BS.intercalate (BS.pack ",")
-      (True,  False) -> BS.intercalate (BS.pack "\n")
+    multiline = case (wrapArray, Multiline `elem` flags) of
+      (False, _)     -> BS.intercalate (BS.pack "\n")
+      (True,  False) -> BS.intercalate (BS.pack ",")
       (True,  True)  -> BS.intercalate (BS.pack ",\n")
 
     ignoreNulls
-      | IgnoreNulls `elem` flags =
+      | NoIgnoreNulls `notElem` flags =
         filter (/= Aeson.Null)
       | otherwise =  id
 
@@ -96,7 +100,7 @@ main = do
       . BS.putStr . multiline
       . map Aeson.encode
       . ignoreNulls
-      . map (wrapRoot . xmlTreeToJSON)
+      . map (wrapRoot . xmlTreeToJSON collapseText)
       $ rootElems
 
 data JSValueName = Text | Tag String | Attr String
@@ -126,16 +130,16 @@ wrapRoot (Just (a, b)) = Aeson.object [(packJSValueName a, b)]
 
 -- converts a map to a json value, usually resulting in a json object unless the map contains ONLY a single Text entry,
 -- in which case the value produced is a json string
-tagMapToJSValue :: M.Map JSValueName Aeson.Value -> Aeson.Value
-tagMapToJSValue m = case M.toList m of
-  [(Text, val)] -> val
-  _             ->
+tagMapToJSValue :: Bool -> M.Map JSValueName Aeson.Value -> Aeson.Value
+tagMapToJSValue collapseText m = case (collapseText, M.toList m) of
+  (True, [(Text, val)]) -> val
+  _                     ->
     Aeson.Object . HashMap.fromList . (map . first) packJSValueName $ M.toList m
 
-xmlTreeToJSON :: XmlTree -> Maybe (JSValueName, Aeson.Value)
-xmlTreeToJSON node@(NTree (XTag qName _) children)
+xmlTreeToJSON :: Bool -> XmlTree -> Maybe (JSValueName, Aeson.Value)
+xmlTreeToJSON collapseText node@(NTree (XTag qName _) children)
   = Just (Tag (localPart qName),
-          tagMapToJSValue objMap)
+          tagMapToJSValue collapseText objMap)
   where
     objMap =
         arrayValuesToJSONArrays    -- unify into a single map,
@@ -143,18 +147,18 @@ xmlTreeToJSON node@(NTree (XTag qName _) children)
       . map (uncurry M.singleton)  -- convert pairs to maps
       . (++) attrVals
       . catMaybes                  -- filter out the empty values (unconvertable nodes)
-      $ map xmlTreeToJSON children -- convert xml nodes to Maybe (QName, Aeson.Value) pairs
+      $ map (xmlTreeToJSON collapseText) children -- convert xml nodes to Maybe (QName, Aeson.Value) pairs
 
     attrVals =
       map (Attr *** Aeson.String . T.pack) $ getAttrVals node
 
-xmlTreeToJSON (NTree (XText str) _)
+xmlTreeToJSON _ (NTree (XText str) _)
   | T.null text = Nothing
   | otherwise = Just (Text, Aeson.String text)
   where
     text = T.strip $ T.pack str
 
-xmlTreeToJSON _ = Nothing
+xmlTreeToJSON _ _ = Nothing
 
 die :: String -> IO a
 die msg = do
