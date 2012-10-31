@@ -76,6 +76,7 @@ Input file:
 <!DOCTYPE Test>
 <Tests>
   <Test Name="The First Test">
+    <SomeText>Some simple text</SomeText>
     <Description Format="FooFormat">
 Just a dummy
 <!-- comment -->
@@ -86,26 +87,41 @@ Xml file.
 </Tests>
 ```
 
-JSON output (formatted for readability - actual output a single line):
+JSON output using default settings:
+```
+{"Tests":{"Test":[{"Name":"The First Test","SomeText":"Some simple text","Description":{"Format":"FooFormat","value":"Just a dummy\n\nXml file."}},{"Name":"Second"}]}}
+```
+
+Formatted for readability (not the actual output):
 
 ```
 {
-	"Tests" : { 
-		"Test" : [
-			{ "Name" : "The First Test", 
-			  "Description" : {
-				  "Format" : "FooFormat",
-				  "value"  : "Just a dummy\n\nXml file."
-              }
-			},
-			{ "Name" : "Second" }
-		]
-	}
+   "Tests":{
+      "Test":[
+         {
+            "Name":"The First Test",
+            "SomeText":"Some simple text",
+            "Description":{
+               "Format":"FooFormat",
+               "value":"Just a dummy\n\nXml file."
+            }
+         },
+         {
+            "Name":"Second"
+         }
+      ]
+   }
 }
 ```
 
+Using the various options you can control various aspects of the output such as:
 
+* At which top-level nodes the conversion starts to work (-t)
+* Whether to wrap the output in a top-level JSON array,
+* Whether or not to collapse simple string elements, such as the <SomeText> element in the example, into a simple string property
+* And more.
 
+Use the `--help` option to see a full list of options.
 
 
 ## Performance
