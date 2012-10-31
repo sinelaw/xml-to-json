@@ -49,7 +49,7 @@ getStartNodes flags =
   case [x | StartFrom x <- flags] of
   []  -> getChildren >>> isElem
   [x] -> deep (isElem >>> hasName x)
-  _   -> error "Expecting at most one 'start-tag' option"
+  _   -> error "Expecting at most one --tag-name (-t) option"
 
 main :: IO ()
 main = do
