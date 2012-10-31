@@ -27,5 +27,6 @@ source-repository head
 executable xml-to-json
   main-is: src/xml-to-json.hs             
   -- other-modules:       
-  build-depends:       base ==4.5.*, hxt, hxt-curl, aeson, text, unordered-containers, hashable, vector, bytestring, hxt-tagsoup, hxt-expat
-  ghc-options: -Wall -O2 
+  build-depends:       base ==4.5.*, hxt, hxt-curl, aeson, text,
+                       containers, unordered-containers, vector, bytestring, hxt-tagsoup, hxt-expat
+  ghc-options: -Wall -O2
