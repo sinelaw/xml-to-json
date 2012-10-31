@@ -26,13 +26,13 @@ data Flag = Input String | StartFrom String | Multiline | SkipRoots | IgnoreNull
 
 options :: [OptDescr Flag]
 options =
-  [ Option "h"     ["help"] (NoArg ShowHelp) "Show this help"
-  , Option "t"     ["tag-name"]  (ReqArg StartFrom "TAG") "Start conversion with nodes named TAG (ignoring all parent nodes)"
-  , Option "s"     ["skip-roots"] (NoArg SkipRoots) ("Ignore the selected nodes, and start converting from their children\n"
-                                                      ++ "(can be combined with the 'start-tag' option to process only children of the matching nodes)")
-  , Option "m"     ["multiline"]  (NoArg Multiline) "Output each of the top-level converted json objects on a seperate line"
-  , Option "n"     ["ignore-nulls"] (NoArg IgnoreNulls) "Ignore nulls (do not output them) in the top-level output objects"
-  , Option "a"     ["as-array"] (NoArg WrapArray) "Output the resulting objects in a top-level JSON array"
+  [ Option "h" ["help"]         (NoArg ShowHelp)         "Show this help"
+  , Option "t" ["tag-name"]     (ReqArg StartFrom "TAG") "Start conversion with nodes named TAG (ignoring all parent nodes)"
+  , Option "s" ["skip-roots"]   (NoArg SkipRoots)       ("Ignore the selected nodes, and start converting from their children\n"
+                                                         ++ "(can be combined with the 'start-tag' option to process only children of the matching nodes)")
+  , Option "m" ["multiline"]    (NoArg Multiline)        "Output each of the top-level converted json objects on a seperate line"
+  , Option "n" ["ignore-nulls"] (NoArg IgnoreNulls)      "Ignore nulls (do not output them) in the top-level output objects"
+  , Option "a" ["as-array"]     (NoArg WrapArray)        "Output the resulting objects in a top-level JSON array"
   ]
 
 parseOptions :: [String] -> IO ([Flag], [String])
