@@ -11,6 +11,7 @@ import System.Console.GetOpt (OptDescr(..), ArgDescr(NoArg, ReqArg), ArgOrder(Pe
 import System.Environment (getArgs)
 import System.Exit (ExitCode(ExitFailure), exitWith)
 import System.IO (hPutStrLn, stderr)
+import Text.Regex.Posix ((=~))
 import Text.XML.HXT.Core (readDocument, getChildren, getText, isElem, XmlTree, XNode(..), deep, getName, localPart, hasName, ArrowXml, runLA, getAttrl, runX, withValidate, no)
 import Text.XML.HXT.Curl -- use libcurl for HTTP access, only necessary when reading http://...
 import Text.XML.HXT.Expat (withExpat)
@@ -21,7 +22,7 @@ import qualified Data.Map as M
 import qualified Data.Text as T
 import qualified Data.Vector as Vector
 
-data Flag = Input String | StartFrom String | Multiline | SkipRoots | NoIgnoreNulls | WrapArray | NoCollapseText | ShowHelp
+data Flag = Input String | StartFrom String | Multiline | SkipRoots | NoIgnoreNulls | WrapArray | NoCollapseText String | ShowHelp
     deriving (Show, Eq)
 
 options :: [OptDescr Flag]
@@ -33,9 +34,10 @@ options =
   , Option "a" ["as-array"]         (NoArg WrapArray)        "Output the resulting objects in a top-level JSON array"
   , Option "m" ["multiline"]        (NoArg Multiline)       ("When using 'as-array' output, print each of top-level json object on a seperate line.\n" 
                                                              ++ "(If not using 'as-array', this option will be on regardless, and output is always line-seperated.)")
-  , Option ""  ["no-collapse-text"] (NoArg NoCollapseText)  ("Don't collapse elements that only contain text into a simple string property.\n"
-                                                             ++ "Instead, always emit '.value' properties for text nodes, even if an element contains only text.\n"
-                                                             ++ "(Output 'schema' will be more stable.)")
+  , Option ""  ["no-collapse-text"] (ReqArg NoCollapseText "PATTERN") ("For elements with tag matching regex PATTERN only (use '.*' or '' to match all elements):\n"
+                                                                       ++ "Don't collapse elements that only contain text into a simple string property.\n"
+                                                                       ++ "Instead, always emit '.value' properties for text nodes, even if an element contains only text.\n"
+                                                                       ++ "(Output 'schema' will be more stable.)")
   , Option ""  ["no-ignore-nulls"]  (NoArg NoIgnoreNulls)    "Don't ignore nulls (and do output them) in the top level of output objects"
   ]
 
@@ -66,7 +68,7 @@ main = do
   let
     skipRoots     = SkipRoots      `elem` flags
     wrapArray     = WrapArray      `elem` flags
-    collapseText  = NoCollapseText `notElem` flags
+    collapseTextRegex = singleOrNothing "Expecting at most one --no-collapse-text option" [x | NoCollapseText x <- flags]
     wrapAction act
       | wrapArray = putStr "[" *> act <* putStr "]"
       | otherwise = act
@@ -100,7 +102,7 @@ main = do
       . BS.putStr . multiline
       . map Aeson.encode
       . ignoreNulls
-      . map (wrapRoot . xmlTreeToJSON collapseText)
+      . map (wrapRoot . xmlTreeToJSON collapseTextRegex)
       $ rootElems
 
 data JSValueName = Text | Tag String | Attr String
@@ -131,15 +133,15 @@ wrapRoot (Just (a, b)) = Aeson.object [(packJSValueName a, b)]
 -- converts a map to a json value, usually resulting in a json object unless the map contains ONLY a single Text entry,
 -- in which case the value produced is a json string
 tagMapToJSValue :: Bool -> M.Map JSValueName Aeson.Value -> Aeson.Value
-tagMapToJSValue collapseText m = case (collapseText, M.toList m) of
+tagMapToJSValue collapseTextRegex m = case (collapseTextRegex, M.toList m) of
   (True, [(Text, val)]) -> val
   _                     ->
     Aeson.Object . HashMap.fromList . (map . first) packJSValueName $ M.toList m
 
-xmlTreeToJSON :: Bool -> XmlTree -> Maybe (JSValueName, Aeson.Value)
-xmlTreeToJSON collapseText node@(NTree (XTag qName _) children)
+xmlTreeToJSON :: Maybe String -> XmlTree -> Maybe (JSValueName, Aeson.Value)
+xmlTreeToJSON collapseTextRegex node@(NTree (XTag qName _) children)
   = Just (Tag (localPart qName),
-          tagMapToJSValue collapseText objMap)
+          tagMapToJSValue shouldCollapseText objMap)
   where
     objMap =
         arrayValuesToJSONArrays    -- unify into a single map,
@@ -147,10 +149,15 @@ xmlTreeToJSON collapseText node@(NTree (XTag qName _) children)
       . map (uncurry M.singleton)  -- convert pairs to maps
       . (++) attrVals
       . catMaybes                  -- filter out the empty values (unconvertable nodes)
-      $ map (xmlTreeToJSON collapseText) children -- convert xml nodes to Maybe (QName, Aeson.Value) pairs
+      $ map (xmlTreeToJSON collapseTextRegex) children -- convert xml nodes to Maybe (QName, Aeson.Value) pairs
 
     attrVals =
       map (Attr *** Aeson.String . T.pack) $ getAttrVals node
+      
+    shouldCollapseText = case collapseTextRegex of 
+                         Nothing -> True 
+                         Just "" -> False
+                         Just pattern -> not $ (localPart qName) =~ pattern
 
 xmlTreeToJSON _ (NTree (XText str) _)
   | T.null text = Nothing
@@ -164,3 +171,8 @@ die :: String -> IO a
 die msg = do
   hPutStrLn stderr msg
   exitWith (ExitFailure 1)
+
+singleOrNothing :: String -> [a] -> Maybe a 
+singleOrNothing _   []  = Nothing
+singleOrNothing _   [x] = Just x 
+singleOrNothing msg _   = error msg

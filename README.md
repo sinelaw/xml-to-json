@@ -58,17 +58,18 @@ Here's a (possibly outdated) snapshot of the `--help` output:
 
 ```
 Usage: <program> [OPTION...] files...
-  -h      --help              Show this help
-  -t TAG  --tag-name=TAG      Start conversion with nodes named TAG (ignoring all parent nodes)
-  -s      --skip-roots        Ignore the selected nodes, and start converting from their children
-                              (can be combined with the 'start-tag' option to process only children of the matching nodes)
-  -a      --as-array          Output the resulting objects in a top-level JSON array
-  -m      --multiline         When using 'as-array' output, print each of top-level json object on a seperate line.
-                              (If not using 'as-array', this option will be on regardless, and output is always line-seperated.)
-          --no-collapse-text  Don't collapse elements that only contain text into a simple string property.
-                              Instead, always emit '.value' properties for text nodes, even if an element contains only text.
-                              (Output 'schema' will be more stable.)
-          --no-ignore-nulls   Don't ignore nulls (and do output them) in the top level of output objects
+  -h      --help                      Show this help
+  -t TAG  --tag-name=TAG              Start conversion with nodes named TAG (ignoring all parent nodes)
+  -s      --skip-roots                Ignore the selected nodes, and start converting from their children
+                                      (can be combined with the 'start-tag' option to process only children of the matching nodes)
+  -a      --as-array                  Output the resulting objects in a top-level JSON array
+  -m      --multiline                 When using 'as-array' output, print each of top-level json object on a seperate line.
+                                      (If not using 'as-array', this option will be on regardless, and output is always line-seperated.)
+          --no-collapse-text=PATTERN  For elements with tag matching regex PATTERN only:
+	  			      Don't collapse elements that only contain text into a simple string property.
+                                      Instead, always emit '.value' properties for text nodes, even if an element contains only text.
+                                      (Output 'schema' will be more stable.)
+          --no-ignore-nulls           Don't ignore nulls (and do output them) in the top level of output objects
 ```
 
 ## Example output
@@ -81,6 +82,7 @@ Input file:
 <Tests>
   <Test Name="The First Test">
     <SomeText>Some simple text</SomeText>
+    <SomeMoreText>More text</SomeMoreText>
     <Description Format="FooFormat">
 Just a dummy
 <!-- comment -->
@@ -104,6 +106,7 @@ Formatted for readability (not the actual output):
       "Test":[
          {
             "Name":"The First Test",
+	    "SomeMoreText":"More text",
             "SomeText":"Some simple text",
             "Description":{
                "Format":"FooFormat",
@@ -118,12 +121,14 @@ Formatted for readability (not the actual output):
 }
 ```
 
+Note that currently xml-to-json does not retain the order of elements / attributes.
+ 
 Using the various options you can control various aspects of the output such as:
 
 * At which top-level nodes the conversion starts to work (-t)
 * Whether to wrap the output in a top-level JSON array,
-* Whether or not to collapse simple string elements, such as the <SomeText> element in the example, into a simple string property
-* And more.
+* Whether or not to collapse simple string elements, such as the <SomeText> element in the example, into a simple string property (you can specify a regular expression pattern to decide which nodes to collapse)
+* And more...
 
 Use the `--help` option to see a full list of options.
 

@@ -3,6 +3,7 @@
 <Tests>
   <Test Name="The First Test">
     <SomeText>Some simple text</SomeText>
+    <SomeMoreText>More text</SomeMoreText>
     <Description Format="FooFormat">
 Just a dummy
 <!-- comment -->

@@ -28,5 +28,6 @@ executable xml-to-json
   main-is: src/xml-to-json.hs             
   -- other-modules:       
   build-depends:       base ==4.5.*, hxt, hxt-curl, aeson, text,
-                       containers, unordered-containers, vector, bytestring, hxt-tagsoup, hxt-expat
+                       containers, unordered-containers, vector, bytestring, hxt-tagsoup, hxt-expat,
+                       regex-posix
   ghc-options: -Wall -O2
