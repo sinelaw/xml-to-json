@@ -57,14 +57,18 @@ Use the `--help` option to see the full command line options.
 Here's a (possibly outdated) snapshot of the `--help` output:
 
 ```
-Usage: xml-to-json [OPTION...] files...
-  -h      --help          Show this help
-  -t TAG  --tag-name=TAG  Start conversion with nodes named TAG (ignoring all parent nodes)
-  -s      --skip-roots    Ignore the selected nodes, and start converting from their children
-                          (can be combined with the 'start-tag' option to process only children of the matching nodes)
-  -m      --multiline     Output each of the top-level converted json objects on a seperate line
-  -n      --ignore-nulls  Ignore nulls (do not output them) in the top-level output objects
-  -a      --as-array      Output the resulting objects in a top-level JSON array
+Usage: <program> [OPTION...] files...
+  -h      --help              Show this help
+  -t TAG  --tag-name=TAG      Start conversion with nodes named TAG (ignoring all parent nodes)
+  -s      --skip-roots        Ignore the selected nodes, and start converting from their children
+                              (can be combined with the 'start-tag' option to process only children of the matching nodes)
+  -a      --as-array          Output the resulting objects in a top-level JSON array
+  -m      --multiline         When using 'as-array' output, print each of top-level json object on a seperate line.
+                              (If not using 'as-array', this option will be on regardless, and output is always line-seperated.)
+          --no-collapse-text  Don't collapse elements that only contain text into a simple string property.
+                              Instead, always emit '.value' properties for text nodes, even if an element contains only text.
+                              (Output 'schema' will be more stable.)
+          --no-ignore-nulls   Don't ignore nulls (and do output them) in the top level of output objects
 ```
 
 ## Example output
