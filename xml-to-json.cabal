@@ -1,33 +1,41 @@
 name:                xml-to-json
-version:             0.1.1.0
+version:             0.1.1.1
 synopsis:            Simple command line tool for converting XML files to json
 description:         
-		     This simple tool converts XMLs to json format, gaining readability while losing information such as comments, attribute ordering, and such. 
-		     The main purpose is to convert legacy XML-based data into a format that can be imported into JSON databases such as CouchDB and MongoDB.
-		     .
-		     See <https://github.com/sinelaw/xml-to-json#readme> for details and usage.
+             This simple tool converts XMLs to json format, gaining readability while losing information such as comments, attribute ordering, and such. 
+             The main purpose is to convert legacy XML-based data into a format that can be imported into JSON databases such as CouchDB and MongoDB.
+             .
+             See <https://github.com/sinelaw/xml-to-json#readme> for details and usage.
 license:             GPL-3
 license-file:        LICENSE
 author:              Noam Lewis
 maintainer:          jones.noamle@gmail.com
 homepage:            https://github.com/sinelaw/xml-to-json
 bug-reports:         https://github.com/sinelaw/xml-to-json/issues
-copyright:           Copyright Noam Lewis, 2012
+copyright:           Copyright Noam Lewis, 2014
 category:            Web, XML
 build-type:          Simple
 cabal-version:       >=1.8
 Extra-Source-Files:
   README.md
 
-
 source-repository head
   type:     git
   location: https://github.com/sinelaw/xml-to-json.git
-
+  
+library
+  exposed-modules: XmlToJson
+  extensions: CPP
+  hs-source-dirs: src
+  build-depends:   base ==4.5.*, hxt<=9.3.0.1, aeson, text, unordered-containers, hashable, vector, bytestring, hxt-tagsoup, hxt-expat, containers, regex-posix
+  if (!os(windows))
+    build-depends:  hxt-curl, curl
+    cpp-options: -DUseCurl
+  ghc-options: -Wall -O2 
+  
 executable xml-to-json
-  main-is: src/xml-to-json.hs             
-  -- other-modules:       
-  build-depends:       base ==4.5.*, hxt, hxt-curl, aeson, text,
-                       containers, unordered-containers, vector, bytestring, hxt-tagsoup, hxt-expat,
-                       regex-posix
+  main-is: Main.hs             
+  hs-source-dirs: src-exec
+  extensions: CPP
+  build-depends:    base ==4.5.*, xml-to-json
   ghc-options: -Wall -O2
