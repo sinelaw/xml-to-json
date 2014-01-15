@@ -1,8 +1,9 @@
 name:                xml-to-json
-version:             0.1.1.1
-synopsis:            Simple command line tool for converting XML files to json
+version:             0.1.2.0
+synopsis:            Library and command line tool for converting XML files to json
 description:         
-             This simple tool converts XMLs to json format, gaining readability while losing information such as comments, attribute ordering, and such. 
+             This library converts XMLs to json format, gaining readability while losing information such as comments, attribute ordering, and such. 
+			 The package also includes an executable to directly invoke the library on files (or urls on non-windows platforms).
              The main purpose is to convert legacy XML-based data into a format that can be imported into JSON databases such as CouchDB and MongoDB.
              .
              See <https://github.com/sinelaw/xml-to-json#readme> for details and usage.
@@ -31,11 +32,11 @@ library
   if (!os(windows))
     build-depends:  hxt-curl, curl
     cpp-options: -DUseCurl
-  ghc-options: -Wall -O2 
+  ghc-options: -Wall
   
 executable xml-to-json
   main-is: Main.hs             
   hs-source-dirs: src-exec
   extensions: CPP
   build-depends:    base ==4.5.*, xml-to-json
-  ghc-options: -Wall -O2
+  ghc-options: -Wall

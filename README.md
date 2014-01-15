@@ -1,6 +1,6 @@
 # xml-to-json
 
-Fast & easy command line tool for converting XML files to JSON.
+Fast & easy library & command line tool for converting XML files to JSON.
 
 
 ## Contents
@@ -15,17 +15,17 @@ Fast & easy command line tool for converting XML files to JSON.
 
 The output is designed to be easy to store and process using JSON-based databases, such as [mongoDB](http://www.mongodb.org/) and [CouchDB](http://couchdb.apache.org/). In fact, the original motivation for xml-to-json was to store and query a large (~10GB) XML-based dataset, using an off-the-shelf scalable JSON database.
 
-Currently the tool processes XMLs according to lossy rules designed to produce sensibly minimal output. If you need to convert without losing information at all consider something like the XSLT offered by the [jsonml project](http://www.jsonml.org/). Unlike jsonml, this tool - xml-to-json - produces json output similar (but not identical) to the [xml2json-xslt project](http://code.google.com/p/xml2json-xslt/).
+Currently the xml-to-json processes XMLs according to lossy rules designed to produce sensibly minimal output. If you need to convert without losing information at all consider something like the XSLT offered by the [jsonml project](http://www.jsonml.org/). Unlike jsonml, this tool - xml-to-json - produces json output similar (but not identical) to the [xml2json-xslt project](http://code.google.com/p/xml2json-xslt/).
 
 ### Implementation Notes
 
-xml-to-json is implemented in [Haskell](http://www.haskell.org). Currently the implementation is minimal - for example, the core translation functionality is not exported as a library. If you want to use it as a library, open an issue on this project (or better yet - do it and submit a pull request).
+xml-to-json is implemented in [Haskell](http://www.haskell.org).
 
 As of this writing, xml-to-json uses [hxt](http://hackage.haskell.org/package/hxt) with the [expat](http://expat.sourceforge.net/)-based [hxt-expat](http://hackage.haskell.org/package/hxt-expat) parser. The pure Haskell parsers for hxt [all seem to have memory issues](http://stackoverflow.com/q/2292729/562906) which hxt-expat doesn't.
 
 ## Installation
 
-**Note for Windows users**: [Download pre-built exe here](https://github.com/downloads/sinelaw/xml-to-json/xml-to-json.zip). I managed to compile using [cygwin](http://www.cygwin.org). Use the [xml-to-json branch for cygwin](https://github.com/sinelaw/xml-to-json/tree/cygwin) if you're trying to build for windows. The main difference is lack of curl support.
+**Note for Windows users**: Only local files, not URLs, are supported as command line arguments. This is because **curl** doesn't compile on my (windows + cygwin) machine out-of-the-box.
 
 To install the **release version**: Since xml-to-json is implemented in Haskell, "all you need to do" is install the latest [Haskell platform](http://www.haskell.org/platform/) for your system, and then run:
 
