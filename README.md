@@ -13,7 +13,9 @@ Fast & easy library & command line tool for converting XML files to JSON.
 
 ## Overview
 
-The output is designed to be easy to store and process using JSON-based databases, such as [mongoDB](http://www.mongodb.org/) and [CouchDB](http://couchdb.apache.org/). In fact, the original motivation for xml-to-json was to store and query a large (~10GB) XML-based dataset, using an off-the-shelf scalable JSON database.
+xml-to-json converts xml to json. It includes a Haskell library and a command-line tool.
+
+The resulting json output is designed to be easy to store and process using JSON-based databases, such as [mongoDB](http://www.mongodb.org/) or [CouchDB](http://couchdb.apache.org/). In fact, the original motivation for xml-to-json was to store and query a large (~10GB) XML-based dataset, using an off-the-shelf scalable JSON database.
 
 Currently the xml-to-json processes XMLs according to lossy rules designed to produce sensibly minimal output. If you need to convert without losing information at all consider something like the XSLT offered by the [jsonml project](http://www.jsonml.org/). Unlike jsonml, this tool - xml-to-json - produces json output similar (but not identical) to the [xml2json-xslt project](http://code.google.com/p/xml2json-xslt/).
 
