@@ -1,0 +1,12 @@
+<Root name="root">
+<Inner>
+<First name="1">
+<FirstInner/></First>
+<Second name="2"/>
+<Third name="3"/>
+</Inner>
+<Inner >
+<First name="a"/>
+<Second name="b"/>
+<Third name="c"/>
+</Inner></Root>
