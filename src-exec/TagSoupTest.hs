@@ -2,7 +2,6 @@
 module Main  where
 
 import Text.HTML.TagSoup
-
 import Control.Exception
 import Control.Monad
 import Data.List
@@ -56,7 +55,7 @@ data EncodedJSON = StartObject Name Attrs Bool | EndObject | Text String Bool | 
 
 instance Show EncodedJSON where
     show Empty = ""
-    show (Text t hasLeadingComma) = leadingComma ++ "\"" ++ t ++ "\""
+    show (Text t hasLeadingComma) = leadingComma ++ "\"" ++ encodeStr t ++ "\""
         where leadingComma = if hasLeadingComma then ", " else ""
     show EndObject = "]}\n"
     show (StartObject name attrs hasLeadingComma) = leadingComma 
@@ -67,6 +66,12 @@ instance Show EncodedJSON where
               showAttrs [] = ""
               showAttrs as = "\"attrs\": { " ++ (intercalate ", " . map showKV $ as) ++ " }, "
               showKV (k,v) = "\"" ++ k ++ "\": \"" ++ v ++ "\""
+
+encodeStr :: String -> String
+encodeStr [] = ""
+encodeStr (x:xs) = case x of
+                     '"' -> ['\\', '"'] ++ (encodeStr xs)
+                     _ -> (x : encodeStr xs)
 
 convertTag :: State -> Tag String -> State
 convertTag (State _ ((curName, curAttrs, curCount):parents)) (TagOpen name attrs) 
@@ -91,6 +96,7 @@ convertTag (State _ parents) (TagText text)
                       (name, attrs, count):ps -> (count > 0, (name, attrs, count + 1):ps)
 convertTag (State _ parents) _ = (State Empty parents)
 
+createStartObject :: [Char] -> Attrs -> Bool -> EncodedJSON
 createStartObject name attrs hasLeadingComma 
     = case head name of
         '!' -> Empty
