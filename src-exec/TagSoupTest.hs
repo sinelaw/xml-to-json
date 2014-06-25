@@ -71,10 +71,10 @@ instance Show EncodedJSON where
 convertTag :: State -> Tag String -> State
 convertTag (State _ ((curName, curAttrs, curCount):parents)) (TagOpen name attrs) 
     = State startObj ((name, attrs, 0) : (curName, curAttrs, curCount + 1) : parents)
-      where startObj = StartObject name attrs (curCount > 0)
+      where startObj = createStartObject name attrs (curCount > 0)
 convertTag (State _ []) (TagOpen name attrs) 
     = State startObj [(name, attrs, 0)]
-      where startObj = StartObject name attrs False
+      where startObj = createStartObject name attrs False
 convertTag (State _ ((expectedName, _, _):ancestors)) t@(TagClose name)
     = if expectedName == name 
       then State EndObject ancestors
@@ -84,9 +84,15 @@ convertTag (State _ []) t@(TagClose _)
 convertTag (State _ parents) (TagText text) 
     = case stripped of
         "" -> State Empty parents
-        _ -> State (Text stripped comma) parents
+        _ -> State (Text stripped comma) newParents
       where stripped = strip text
-            comma = case parents of
-                      [] -> False
-                      (_,_,count):_ -> count > 0
+            (comma, newParents) = case parents of
+                      [] -> (False, [])
+                      (name, attrs, count):ps -> (count > 0, (name, attrs, count + 1):ps)
 convertTag (State _ parents) _ = (State Empty parents)
+
+createStartObject name attrs hasLeadingComma 
+    = case head name of
+        '!' -> Empty
+        '?' -> Empty
+        _ -> StartObject name attrs hasLeadingComma
