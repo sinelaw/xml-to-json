@@ -67,6 +67,7 @@ instance Show EncodedJSON where
               showAttrs as = "\"attrs\": { " ++ (intercalate ", " . map showKV $ as) ++ " }, "
               showKV (k,v) = "\"" ++ k ++ "\": \"" ++ v ++ "\""
 
+-- TODO: use a faster method for quotation escaping. Consider implementing the encoding function using Text (or ByteString)
 encodeStr :: String -> String
 encodeStr [] = ""
 encodeStr (x:xs) = case x of
