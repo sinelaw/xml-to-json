@@ -32,3 +32,4 @@ ENV/
 
 data/
 
+cabal-dev/
