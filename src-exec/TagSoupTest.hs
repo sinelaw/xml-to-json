@@ -48,7 +48,7 @@ parseXML d = scanl convertTag (State Empty []) d
 type Attrs = [(String, String)]
 type Name = String
 type Elem = (Name, Attrs, Int)
-data State = State { getEncodedJSON :: EncodedJSON, getParents :: [Elem] }
+data State = State { getEncodedJSON :: EncodedJSON, getParents :: [Int] }
            deriving (Show)
 
 data EncodedJSON = StartObject Name Attrs Bool | EndObject | Text String Bool | Empty
@@ -75,16 +75,15 @@ encodeStr (x:xs) = case x of
                      _ -> (x : encodeStr xs)
 
 convertTag :: State -> Tag String -> State
-convertTag (State _ ((curName, curAttrs, curCount):parents)) (TagOpen name attrs) 
-    = State startObj ((name, attrs, 0) : (curName, curAttrs, curCount + 1) : parents)
+convertTag (State _ (curCount:parents)) (TagOpen name attrs) 
+    = State startObj (0 : (curCount + 1) : parents)
       where startObj = createStartObject name attrs (curCount > 0)
 convertTag (State _ []) (TagOpen name attrs) 
-    = State startObj [(name, attrs, 0)]
+    = State startObj [0]
       where startObj = createStartObject name attrs False
-convertTag (State _ ((expectedName, _, _):ancestors)) t@(TagClose name)
-    = if expectedName == name 
-      then State EndObject ancestors
-      else error $ "Malformed XML, unexpected close tag: " ++ (show t) ++ " when expecting to close: " ++ expectedName
+convertTag (State _ ( _:ancestors)) (TagClose _)
+    = State EndObject ancestors
+      --else error $ "Malformed XML, unexpected close tag: " ++ (show t) ++ " when expecting to close: " ++ expectedName
 convertTag (State _ []) t@(TagClose _)
     = error $ "Malformed XML, unexpected close tag: " ++ (show t)
 convertTag (State _ parents) (TagText text) 
@@ -94,7 +93,7 @@ convertTag (State _ parents) (TagText text)
       where stripped = strip text
             (comma, newParents) = case parents of
                       [] -> (False, [])
-                      (name, attrs, count):ps -> (count > 0, (name, attrs, count + 1):ps)
+                      count:ps -> (count > 0, (count + 1):ps)
 convertTag (State _ parents) _ = (State Empty parents)
 
 createStartObject :: [Char] -> Attrs -> Bool -> EncodedJSON
