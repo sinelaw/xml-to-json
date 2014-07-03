@@ -1,4 +1,4 @@
-module XmlToJson(xmlToJson, Flag(..)) where
+module Text.XML.JSON.XmlToJson(xmlToJson, Flag(..)) where
 
 import           Control.Applicative        ((*>), (<*))
 import           Control.Arrow              (first, (&&&), (***), (>>>))

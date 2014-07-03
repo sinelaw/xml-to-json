@@ -7,7 +7,7 @@ import           System.Console.GetOpt      (ArgDescr (NoArg, ReqArg),
                                              getOpt, usageInfo)
 import           System.Exit                (ExitCode (ExitFailure), exitWith)
 import           System.IO                  (hPutStrLn, stderr)                                             
-import           XmlToJson
+import           Text.XML.JSON.XmlToJson
 
 main :: IO ()
 main = do

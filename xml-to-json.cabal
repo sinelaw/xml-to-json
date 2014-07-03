@@ -25,10 +25,10 @@ source-repository head
   location: https://github.com/sinelaw/xml-to-json.git
   
 library
-  exposed-modules: XmlToJson
+  exposed-modules: Text.XML.JSON.XmlToJson, Text.XML.JSON.StreamingXmlToJson
   extensions: CPP
   hs-source-dirs: src
-  build-depends:   base >= 4.5.0 && < 4.7, hxt, aeson < 0.7, text, unordered-containers, hashable, vector, bytestring, hxt-tagsoup, hxt-expat, containers, regex-posix
+  build-depends:   base >= 4.5.0 && < 4.7, hxt, aeson < 0.7, text, unordered-containers, hashable, vector, bytestring, hxt-tagsoup, hxt-expat, containers, regex-posix, tagsoup
   if (!os(windows))
     build-depends:  hxt-curl, curl
     cpp-options: -DUseCurl
@@ -47,6 +47,6 @@ executable tagsouptest
   main-is: TagSoupTest.hs             
   hs-source-dirs: src-exec
   extensions: CPP
-  build-depends:   base >= 4.5.0 && < 4.7, tagsoup, text, directory, process, aeson < 0.7, bytestring, vector, containers
+  build-depends:   base >= 4.5.0 && < 4.7, tagsoup, text, directory, process, aeson < 0.7, bytestring, vector, containers, xml-to-json
   ghc-options: -Wall  -rtsopts
   Ghc-Prof-Options:  -prof -auto-all  -caf-all
