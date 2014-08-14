@@ -1,5 +1,5 @@
 name:                xml-to-json
-version:             0.1.2.0
+version:             0.1.3.0
 synopsis:            Library and command line tool for converting XML files to json
 description:         
              This library converts XMLs to json format, gaining readability while losing information such as comments, attribute ordering, and such. 
@@ -7,7 +7,7 @@ description:
              The main purpose is to convert legacy XML-based data into a format that can be imported into JSON databases such as CouchDB and MongoDB.
              .
              See <https://github.com/sinelaw/xml-to-json#readme> for details and usage.
-license:             GPL-3
+license:             MIT
 license-file:        LICENSE
 author:              Noam Lewis
 maintainer:          jones.noamle@gmail.com
