@@ -1,6 +1,5 @@
 module Main  where
 
-import Text.HTML.TagSoup
 import Control.Exception
 import Control.Monad
 import Data.List
@@ -9,8 +8,7 @@ import System.Directory
 import System.Exit
 import System.IO
 import System.Environment (getArgs)
-import qualified Data.Foldable
-import Text.XML.JSON.StreamingXmlToJson(xmlStreamToJSON, EncodedJSON)
+import Text.XML.JSON.StreamingXmlToJson(xmlStreamToJSON)
 
 openItem :: String -> IO String
 openItem url | not $ "http://" `isPrefixOf` url = readFile url
