@@ -43,8 +43,8 @@ executable xml-to-json
   ghc-options: -Wall  -rtsopts
   Ghc-Prof-Options:  -prof -auto-all  -caf-all
   
-executable tagsouptest
-  main-is: TagSoupTest.hs             
+executable xml-to-json-fast
+  main-is: StreamingMain.hs             
   hs-source-dirs: src-exec
   extensions: CPP
   build-depends:   base >= 4.5.0 && < 4.7, tagsoup, text, directory, process, aeson < 0.7, bytestring, vector, containers, xml-to-json
