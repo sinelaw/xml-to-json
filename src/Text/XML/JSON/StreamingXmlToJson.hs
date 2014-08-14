@@ -2,57 +2,63 @@ module Text.XML.JSON.StreamingXmlToJson
 where
 
 import Text.HTML.TagSoup
-import qualified Data.Text as T
+import qualified Data.Text.Lazy as T
+import Data.List (intercalate)
 import qualified Data.Foldable
 
 
-xmlStreamToJSON :: T.Text -> [T.Text]
+
+xmlStreamToJSON :: String -> [String]
 xmlStreamToJSON fileData = map toText linesWithLevels
     where xmlData = parseTags fileData
           jsonData = map getEncodedJSON . parseXML $ xmlData
           linesWithLevels = Data.Foldable.toList jsonData
 
-parseXML :: [Tag T.Text] -> [State]
+parseXML :: [Tag String] -> [State]
 parseXML d = scanl convertTag (State Empty []) d
 
-type Attrs = [(T.Text, T.Text)]
-type Name = T.Text
+type Attrs = [(String, String)]
+type Name = String
 type Elem = (Name, Attrs, Int)
 data State = State { getEncodedJSON :: EncodedJSON, getParents :: [Int] }
 
-data EncodedJSON = StartObject Name Attrs Bool | EndObject | Text T.Text Bool | Empty
+data EncodedJSON = StartObject Name Attrs Bool | EndObject | Text String Bool | Empty
 
-quoteT :: T.Text
-quoteT = T.pack "\""
+quoteT :: String
+quoteT = "\""
 
-toText :: EncodedJSON -> T.Text
-toText Empty = T.empty
-toText (Text t hasLeadingComma) = T.concat [T.pack leadingComma, quoteT, encodeStr $ t, quoteT]
+toText :: EncodedJSON -> String
+toText Empty = ""
+toText (Text t hasLeadingComma) = concat [leadingComma, quoteT, "--encoded--", quoteT]
     where leadingComma = if hasLeadingComma then ", " else ""
-toText EndObject = T.pack "]}\n"
-toText (StartObject name attrs hasLeadingComma) = T.concat [ T.pack (leadingComma ++ "{\"name\": \"")
-                                                           , name
-                                                           , T.pack "\", "
-                                                           , toTextAttrs attrs
-                                                           , T.pack "\"items\": [ "
-                                                           ]
+toText EndObject = "]}\n"
+toText (StartObject name attrs hasLeadingComma) = concat [ leadingComma
+                                                         , "{\"name\": \""
+                                                         , name
+                                                         , "\", "
+                                                         , toTextAttrs attrs
+                                                         , "\"items\": [ "
+                                                         ]
     where leadingComma = if hasLeadingComma then ", " else ""
 
-toTextAttrs :: Attrs -> T.Text
-toTextAttrs [] = T.empty
-toTextAttrs as = T.concat [ T.pack "\"attrs\": { "
-                          , T.intercalate (T.pack ", ") . map toTextKV $ as
-                          , T.pack " }, "
+toTextAttrs :: Attrs -> String
+toTextAttrs [] = ""
+toTextAttrs as = concat [ "\"attrs\": { "
+                          , intercalate (", ") . map toTextKV $ as
+                          , " }, "
                           ]
 
-toTextKV :: (T.Text, T.Text) -> T.Text
-toTextKV (k,v) = T.concat [quoteT, k, T.pack "\": \"", v, quoteT]
+toTextKV :: (String, String) -> String
+toTextKV (k,v) = concat [quoteT, k, "\": \"", v, quoteT]
 
--- TODO: use a faster method for quotation escaping. Consider implementing the encoding function using T.Text (or ByteString)
-encodeStr :: T.Text -> T.Text
-encodeStr t = T.replace (T.pack "\"") (T.pack "\\\"") t
+-- TODO: use a faster method for quotation escaping. Consider implementing the encoding function using String (or ByteString)
+encodeStr :: String -> String
+encodeStr t = concat . map (\c -> if c == '"' 
+                                 then "\\\"" 
+                                 else [c]) 
+              $ t
 
-convertTag :: State -> Tag T.Text -> State
+convertTag :: State -> Tag String -> State
 convertTag (State _ (curCount:parents)) (TagOpen name attrs) 
     = State startObj (0 : (curCount + 1) : parents)
       where startObj = createStartObject name attrs (curCount > 0)
@@ -64,18 +70,18 @@ convertTag (State _ ( _:ancestors)) (TagClose _)
 convertTag (State _ []) t@(TagClose _)
     = error $ "Malformed XML, unexpected close tag: " ++ (show t)
 convertTag (State _ parents) (TagText text) 
-    = if stripped == T.empty 
+    = if stripped == ""
       then State Empty parents
       else State (Text stripped comma) newParents
-      where stripped = T.strip text
+      where stripped = T.unpack . T.strip . T.pack $ text
             (comma, newParents) = case parents of
                       [] -> (False, [])
                       count:ps -> (count > 0, (count + 1):ps)
 convertTag (State _ parents) _ = (State Empty parents)
 
-createStartObject :: T.Text -> Attrs -> Bool -> EncodedJSON
+createStartObject :: String -> Attrs -> Bool -> EncodedJSON
 createStartObject name attrs hasLeadingComma 
-    = case T.head name of
+    = case head name of
         '!' -> Empty
         '?' -> Empty
         _ -> StartObject name attrs hasLeadingComma
