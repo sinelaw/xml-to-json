@@ -15,15 +15,33 @@ Fast & easy library & command line tool for converting XML files to JSON.
 
 xml-to-json converts xml to json. It includes a Haskell library and a command-line tool.
 
-The resulting json output is designed to be easy to store and process using JSON-based databases, such as [mongoDB](http://www.mongodb.org/) or [CouchDB](http://couchdb.apache.org/). In fact, the original motivation for xml-to-json was to store and query a large (~10GB) XML-based dataset, using an off-the-shelf scalable JSON database.
+xml-to-json ships with two different executables:
+
+1. `xml-to-json-fast` ("fast") uses a lot less memory, but you can't control the output. Can be used on XML files of any size.
+2. `xml-to-json` ("classic") provides some control over json output format, but uses a lot of memory. Suitable for smaller files.
+
+### "Fast" xml-to-json-fast
+
+The fast, simple `xml-to-json-fast` executable provides an unambiguous one-to-one mapping of xml data to json data. It is suitable for very large xml files (has been tested on a 500MB file) and uses very little memory. However, `xml-to-json-fast` doesn't provide for any control over the output.
+
+When using "fast" (`xml-to-json-fast`), the output reflects the exact structure of the xml, which is allowed to be somewhat malformed (resulting in invalid json).
+
+**Formatting:** Currently `xml-to-json-fast` does **not** format the resulting json. If whitespace formatting is required, you can use a json formatting program such as [aeson-pretty](https://hackage.haskell.org/package/aeson-pretty) (on debian/ubuntu, can be install with `sudo apt-get install aeson-pretty`). Note that most of the json formatters are memory bound, so very large json files may cause the formatter to run out of memory.
+
+### "Classic" xml-to-json
+
+The fully featured "classic" `xml-to-json` provides compact json output that's designed to be easy to store and process using JSON-based databases, such as [mongoDB](http://www.mongodb.org/) or [CouchDB](http://couchdb.apache.org/). In fact, the original motivation for xml-to-json was to store and query a large (~10GB) XML-based dataset, using an off-the-shelf scalable JSON database.
+
+When using "classic" xml-to-json, the input XML must be valid.
 
 Currently the xml-to-json processes XMLs according to lossy rules designed to produce sensibly minimal output. If you need to convert without losing information at all consider something like the XSLT offered by the [jsonml project](http://www.jsonml.org/). Unlike jsonml, this tool - xml-to-json - produces json output similar (but not identical) to the [xml2json-xslt project](http://code.google.com/p/xml2json-xslt/).
 
-### Implementation Notes
+#### Implementation Notes
 
 xml-to-json is implemented in [Haskell](http://www.haskell.org).
 
 As of this writing, xml-to-json uses [hxt](http://hackage.haskell.org/package/hxt) with the [expat](http://expat.sourceforge.net/)-based [hxt-expat](http://hackage.haskell.org/package/hxt-expat) parser. The pure Haskell parsers for hxt [all seem to have memory issues](http://stackoverflow.com/q/2292729/562906) which hxt-expat doesn't.
+
 
 ## Installation
 
@@ -52,7 +70,7 @@ Just run the tool with the filename as a single argument, and direct the stdout 
 > xml-to-json myfile.xml > myfile.js
 
 
-### Advanced
+### Classic `xml-to-json`: Advanced Usage
 
 Use the `--help` option to see the full command line options.
 
@@ -135,9 +153,9 @@ Using the various options you can control various aspects of the output such as:
 Use the `--help` option to see a full list of options.
 
 
-## Performance
+## Performance of "classic" xml-to-json
 
-For large XML files, the speed on a core-i5 machine is about 2MB of xml / sec, with a 100MB XML file resulting in a 56MB json output. It took about 10 minutes to process 1GB of xml data. The main performance limit is memory - only one single-threaded process was running since every single large file (tens of megabytes) consumes a lot of memory - about 50 times the size of the file.
+The "classic" xml-to-json cannot operate on large files. However, it is fast when operating on multiple small files. For large XML files, the speed on a core-i5 machine is about 2MB of xml / sec, with a 100MB XML file resulting in a 56MB json output. It took about 10 minutes to process 1GB of xml data. The main performance limit is memory - only one single-threaded process was running since every single large file (tens of megabytes) consumes a lot of memory - about 50 times the size of the file.
 
 A few simple tests have shown this to be at least twice as fast as [jsonml's xlst-based converter](http://www.jsonml.org/xml/) (however, the outputs are not similar, as stated above).
 
