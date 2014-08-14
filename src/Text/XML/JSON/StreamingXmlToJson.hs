@@ -29,7 +29,7 @@ quoteT = "\""
 
 toText :: EncodedJSON -> String
 toText Empty = ""
-toText (Text t hasLeadingComma) = concat [leadingComma, quoteT, "--encoded--", quoteT]
+toText (Text t hasLeadingComma) = concat [leadingComma, quoteT, encodeStr t, quoteT]
     where leadingComma = if hasLeadingComma then ", " else ""
 toText EndObject = "]}\n"
 toText (StartObject name attrs hasLeadingComma) = concat [ leadingComma
