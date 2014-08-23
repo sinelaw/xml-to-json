@@ -1,5 +1,5 @@
 name:                xml-to-json
-version:             0.1.3.0
+version:             1.0.1
 synopsis:            Library and command line tool for converting XML files to json
 description:         
              This library converts XMLs to json format, gaining readability while losing information such as comments, attribute ordering, and such. 
@@ -28,7 +28,7 @@ library
   exposed-modules: Text.XML.JSON.XmlToJson, Text.XML.JSON.StreamingXmlToJson
   extensions: CPP
   hs-source-dirs: src
-  build-depends:   base >= 4.5.0 && < 4.7, hxt, aeson < 0.7, text, unordered-containers, hashable, vector, bytestring, hxt-tagsoup, hxt-expat, containers, regex-posix, tagsoup
+  build-depends:   base >= 4.5.0 && < 4.8, hxt, aeson < 0.7, text, unordered-containers, hashable, vector, bytestring, hxt-tagsoup, hxt-expat, containers, regex-posix, tagsoup
   if (!os(windows))
     build-depends:  hxt-curl, curl
     cpp-options: -DUseCurl
@@ -39,7 +39,7 @@ executable xml-to-json
   main-is: Main.hs             
   hs-source-dirs: src-exec
   extensions: CPP
-  build-depends:   base >= 4.5.0 && < 4.7, xml-to-json
+  build-depends:   base >= 4.5.0 && < 4.8, xml-to-json
   ghc-options: -Wall  -rtsopts
   Ghc-Prof-Options:  -prof -auto-all  -caf-all
   
@@ -47,6 +47,6 @@ executable xml-to-json-fast
   main-is: StreamingMain.hs             
   hs-source-dirs: src-exec
   extensions: CPP
-  build-depends:   base >= 4.5.0 && < 4.7, tagsoup, text, directory, process, aeson < 0.7, bytestring, vector, containers, xml-to-json
+  build-depends:   base >= 4.5.0 && < 4.8, tagsoup, text, directory, process, aeson < 0.7, bytestring, vector, containers, xml-to-json
   ghc-options: -Wall  -rtsopts
   Ghc-Prof-Options:  -prof -auto-all  -caf-all
