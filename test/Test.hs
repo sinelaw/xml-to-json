@@ -25,28 +25,44 @@ instance Arbitrary XmlChar where
 unpack' :: [XmlChar] -> String
 unpack' = map toChar
 
+arbitraryText :: Gen [Char]
 arbitraryText = liftM unpack' (arbitrary :: Gen [XmlChar]) 
 
-arbitrary' :: Int -> Gen (NTree XNode)
-arbitrary' n = do 
-  text <- arbitraryText
+genTag = do
   textAttr <- arbitraryText
   let rootNode = XTag (mkName "root") rootAttrs
       rootAttrs = [NTree (XAttr $ mkName ("_" ++ textAttr)) []]
-  children <- if n < 3 
-              then do 
-                x <- choose (0, 10)
-                replicateM x (arbitrary' (n + 1))
-              else return []
-  return (NTree rootNode children)
+  return rootNode
+  
+arbitrary' :: Int -> Gen (NTree XNode)
+arbitrary' n = oneof 
+               [ do text <- arbitraryText
+                    let text' = if ("" == text) then "_" else text
+                    return (NTree (XText text') [])
+               , do tag <- genTag
+                    children <- if n < 3 
+                                then do 
+                                  x <- choose (0, 10)
+                                  replicateM x (arbitrary' (n + 1))
+                                else return []
+                    return (NTree tag children)
+               ]
 
 instance Arbitrary (NTree XNode) where
-    arbitrary = arbitrary' 0 
-                
-prop_xmlStreamToJson_valid :: XmlTree -> Bool
-prop_xmlStreamToJson_valid x = isJust decodedJson
+  arbitrary = do
+    tag <- genTag
+    x <- choose (0, 10)
+    children <- replicateM x (arbitrary' 0)
+    return (NTree tag children)
+       
+
+checkValidity :: XmlTree -> Maybe Value
+checkValidity x = decode json :: Maybe Value
     where json = pack . concat . xmlStreamToJSON . xshow $ [x]
-          decodedJson = decode json :: Maybe Value
+
+prop_xmlStreamToJson_valid :: XmlTree -> Bool
+prop_xmlStreamToJson_valid x = isJust $ checkValidity x
 
 return []
-main = $quickCheckAll
+main = do
+  $quickCheckAll
