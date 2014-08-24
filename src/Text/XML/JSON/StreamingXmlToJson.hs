@@ -1,4 +1,4 @@
-module Text.XML.JSON.StreamingXmlToJson
+module Text.XML.JSON.StreamingXmlToJson(xmlStreamToJSON)
 where
 
 import Text.HTML.TagSoup
@@ -19,7 +19,6 @@ parseXML d = scanl convertTag (State Empty []) d
 
 type Attrs = [(String, String)]
 type Name = String
-type Elem = (Name, Attrs, Int)
 data State = State { getEncodedJSON :: EncodedJSON, getParents :: [Int] }
 
 data EncodedJSON = StartObject Name Attrs Bool | EndObject | Text String Bool | Empty
