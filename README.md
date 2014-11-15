@@ -24,7 +24,7 @@ xml-to-json ships with two different executables:
 
 ### "Fast" xml-to-json-fast
 
-The so-called "fast" version (which uses a lot less memory) has been forked into a separate project, [xml-to-json](https://github.com/sinelaw/xml-to-json-fast)
+The so-called "fast" version (which uses a lot less memory) has been forked into a separate project, [xml-to-json-fast](https://github.com/sinelaw/xml-to-json-fast).
 
 ### "Classic" xml-to-json
 
