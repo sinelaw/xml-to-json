@@ -2,7 +2,7 @@
 
 Fast & easy library & command line tool for converting XML files to JSON.
 
-For a better performing (but less featured) version see [xml-to-json-fast](https://github.com/sinelaw/xml-to-json-fast).
+**Heads up!**: The project has been split into two projects. See [xml-to-json-fast](https://github.com/sinelaw/xml-to-json-fast) for low-memory-usage version that has less features.
 
 
 ## Contents
