@@ -1,5 +1,5 @@
 name:                xml-to-json
-version:             2.0.0
+version:             2.0.1
 synopsis:            Library and command line tool for converting XML files to json
 description:         
                      The xml-to-json executable (and library) converts XMLs to json format, gaining readability while losing information such as comments, attribute ordering, and such.
