@@ -48,11 +48,14 @@ As of this writing, xml-to-json uses [hxt](http://hackage.haskell.org/package/hx
 1. Get [Haskell Stack](haskellstack.org)
 2. Run: `stack install xml-to-json`
 
-### Using cabal
+You may need to install `libcurl`. For that, follow your platform's instructions. On debian/ubuntu, you can use: `sudo apt-get install libcurl4-openssl-dev`.
+
+
+### Can't use Stack? Use cabal-install
 
 **Note for Windows users**: Only local files, not URLs, are supported as command line arguments. This is because **curl** doesn't compile on my (windows + cygwin) machine out-of-the-box.
 
-To install the **release version**: Since xml-to-json is implemented in Haskell, "all you need to do" is install the latest [Haskell platform](http://www.haskell.org/platform/) for your system, and then run:
+To install the **release version**: Since xml-to-json is implemented in Haskell, "all you need to do" is install the latest cabal-install (you can try the [Haskell platform](http://www.haskell.org/platform/)) for your system, and then run:
 
 ```
 cabal update
