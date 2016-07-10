@@ -97,7 +97,7 @@ concatMapValues = M.unionsWith (++) . (fmap . fmap) (: [])
 getAttrVals :: XmlTree -> [(String, String)]
 getAttrVals = runLA (getAttrl >>> getName &&& (getChildren >>> getText))
 
-arrayValuesToJSONArrays :: (Ord k) => M.Map k [Aeson.Value] -> M.Map k Aeson.Value
+arrayValuesToJSONArrays :: M.Map k [Aeson.Value] -> M.Map k Aeson.Value
 arrayValuesToJSONArrays = M.mapMaybe f
   where
     f [] = Nothing -- will be discarded
