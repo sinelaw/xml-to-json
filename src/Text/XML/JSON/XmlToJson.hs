@@ -16,7 +16,7 @@ import           Text.XML.HXT.Core          (ArrowXml, XNode (..), XmlTree,
                                              localPart, no, readDocument, runLA,
                                              runX, withValidate)
 
-#ifdef UseCurl	  
+#ifdef UseCurl
 import Text.XML.HXT.Curl -- use libcurl for HTTP access, only necessary when reading http://...
 #endif
 
@@ -72,9 +72,9 @@ xmlToJson flags inputFiles =
       readDocument
       [ withValidate no
       , withExpat True
-#ifdef UseCurl	  
+#ifdef UseCurl
       , withCurl []
-#endif	  
+#endif
       ]
       src
       >>> getStartNodes flags
@@ -87,7 +87,7 @@ xmlToJson flags inputFiles =
       . map (wrapRoot . xmlTreeToJSON (getCollapseTextRegex flags))
       $ rootElems
 
-      
+
 data JSValueName = Text | Tag String | Attr String
   deriving (Eq, Ord, Show)
 

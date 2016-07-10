@@ -1,7 +1,7 @@
 name:                xml-to-json
 version:             2.0.1
 synopsis:            Library and command line tool for converting XML files to json
-description:         
+description:
                      The xml-to-json executable (and library) converts XMLs to json format, gaining readability while losing information such as comments, attribute ordering, and such.
                      .
                      For files that are slow to process, please use 'xml-to-json-fast' which (starting with version 2.0.0) resides in its own package.
@@ -27,7 +27,7 @@ Extra-Source-Files:
 source-repository head
   type:     git
   location: https://github.com/sinelaw/xml-to-json.git
-  
+
 library
   exposed-modules: Text.XML.JSON.XmlToJson
   extensions: CPP
@@ -40,7 +40,7 @@ library
   Ghc-Prof-Options:  -prof -auto-all -caf-all 
   
 executable xml-to-json
-  main-is: Main.hs             
+  main-is: Main.hs
   hs-source-dirs: src-exec
   extensions: CPP
   build-depends:   base >= 4.5.0 && < 5, xml-to-json

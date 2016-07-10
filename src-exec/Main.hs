@@ -6,7 +6,7 @@ import           System.Console.GetOpt      (ArgDescr (NoArg, ReqArg),
                                              ArgOrder (Permute), OptDescr (..),
                                              getOpt, usageInfo)
 import           System.Exit                (ExitCode (ExitFailure), exitWith)
-import           System.IO                  (hPutStrLn, stderr)                                             
+import           System.IO                  (hPutStrLn, stderr)
 import           Text.XML.JSON.XmlToJson
 
 main :: IO ()
@@ -26,7 +26,7 @@ options =
   , Option "s" ["skip-roots"]       (NoArg SkipRoots)       ("Ignore the selected nodes, and start converting from their children\n"
                                                              ++ "(can be combined with the 'start-tag' option to process only children of the matching nodes)")
   , Option "a" ["as-array"]         (NoArg WrapArray)        "Output the resulting objects in a top-level JSON array"
-  , Option "m" ["multiline"]        (NoArg Multiline)       ("When using 'as-array' output, print each of top-level json object on a seperate line.\n" 
+  , Option "m" ["multiline"]        (NoArg Multiline)       ("When using 'as-array' output, print each of top-level json object on a seperate line.\n"
                                                              ++ "(If not using 'as-array', this option will be on regardless, and output is always line-seperated.)")
   , Option ""  ["no-collapse-text"] (ReqArg NoCollapseText "PATTERN") ("For elements with tag matching regex PATTERN only (use '.*' or '' to match all elements):\n"
                                                                        ++ "Don't collapse elements that only contain text into a simple string property.\n"
@@ -49,5 +49,5 @@ die msg = do
   hPutStrLn stderr msg
   exitWith (ExitFailure 1)
 
-  
-  
+
+
