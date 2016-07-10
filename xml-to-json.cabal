@@ -37,13 +37,12 @@ library
     build-depends:  hxt-curl, curl
     cpp-options: -DUseCurl
   ghc-options: -Wall  -rtsopts
-  Ghc-Prof-Options:  -prof -auto-all -caf-all 
-  
+  Ghc-Prof-Options: -auto-all -caf-all
+
 executable xml-to-json
   main-is: Main.hs
   hs-source-dirs: src-exec
   extensions: CPP
   build-depends:   base >= 4.5.0 && < 5, xml-to-json
   ghc-options: -Wall  -rtsopts
-  Ghc-Prof-Options:  -prof -auto-all  -caf-all
-  
+  Ghc-Prof-Options:  -auto-all  -caf-all
