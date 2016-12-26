@@ -45,7 +45,7 @@ As of this writing, xml-to-json uses [hxt](http://hackage.haskell.org/package/hx
 
 ### The easy way: use Stack
 
-1. Get [Haskell Stack](haskellstack.org)
+1. Get [Haskell Stack](http://haskellstack.org)
 2. Run: `stack install xml-to-json`
 
 You may need to install `libcurl`. For that, follow your platform's instructions. On debian/ubuntu, you can use: `sudo apt-get install libcurl4-openssl-dev`.
