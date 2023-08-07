@@ -1,13 +1,12 @@
 module Text.XML.JSON.XmlToJson(xmlToJson, Flag(..)) where
 
-import           Control.Applicative        ((*>), (<*))
-import           Control.Arrow              (first, (&&&), (***), (>>>))
+import           Control.Arrow              ((&&&), (***), (>>>))
 import           Control.Arrow.ArrowTree    (ArrowTree)
 import           Control.Category           (id)
 import           Control.Monad              (forM_)
 import           Data.Maybe                 (catMaybes)
 import           Data.Tree.NTree.TypeDefs
-import           Data.Tree.Class			(Tree)
+import           Data.Tree.Class            (Tree)
 import           Prelude                    hiding (id)
 import           Text.Regex.Posix           ((=~))
 import           Text.XML.HXT.Core          (ArrowXml, XNode (..), XmlTree,
@@ -21,13 +20,12 @@ import Text.XML.HXT.Curl -- use libcurl for HTTP access, only necessary when rea
 #endif
 
 import qualified Data.Aeson                 as Aeson
+import qualified Data.Aeson.Key             as AesonKey
 import qualified Data.ByteString.Lazy.Char8 as BS
-import qualified Data.HashMap.Strict        as HashMap
 import qualified Data.Map                   as M
 import qualified Data.Text                  as T
 import qualified Data.Vector                as Vector
 import           Text.XML.HXT.Expat         (withExpat)
-
 
 data Flag = Input String | StartFrom String | Multiline | SkipRoots | NoIgnoreNulls | WrapArray | NoCollapseText String | ShowHelp
     deriving (Show, Eq)
@@ -104,10 +102,11 @@ arrayValuesToJSONArrays = M.mapMaybe f
     f [x] = Just x  -- don't store as array, just a single value
     f xss = Just $ Aeson.Array . Vector.fromList $ xss -- arrays with more than one element are kept
 
-packJSValueName :: JSValueName -> T.Text
-packJSValueName Text = T.pack "value"
-packJSValueName (Attr x) = T.pack x
-packJSValueName (Tag x)  = T.pack x
+packJSValueName :: JSValueName -> Aeson.Key
+packJSValueName jsValueName = AesonKey.fromString $ case jsValueName of 
+  Text -> "value"
+  Attr x -> x
+  Tag x -> x
 
 wrapRoot :: Maybe (JSValueName, Aeson.Value) -> Aeson.Value
 wrapRoot Nothing       = Aeson.Null
@@ -119,7 +118,7 @@ tagMapToJSValue :: Bool -> M.Map JSValueName Aeson.Value -> Aeson.Value
 tagMapToJSValue collapseTextRegex m = case (collapseTextRegex, M.toList m) of
   (True, [(Text, val)]) -> val
   _                     ->
-    Aeson.Object . HashMap.fromList . (map . first) packJSValueName $ M.toList m
+    Aeson.object [(packJSValueName k, v) | (k, v) <- M.toList m]
 
 xmlTreeToJSON :: Maybe String -> XmlTree -> Maybe (JSValueName, Aeson.Value)
 xmlTreeToJSON collapseTextRegex node@(NTree (XTag qName _) children)
